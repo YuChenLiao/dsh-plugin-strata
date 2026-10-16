@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // 源码与测试都用 `.ts` 相对说明符（与 DSH 自身的写法一致：`./wire.ts`）。
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // `@deepseek-ai/*` 的类型来自 DSH 源码树，由 tools/gen-paths.mjs 生成映射
+    // 到 tsconfig.paths.json（用 `tsc -p tsconfig.paths.json` 做类型检查）。
+    // node 的类型也从那棵树取：本工程不安装依赖。
+    "types": ["node"],
+    // 与本仓库同级的 DSH 源码树；换位置时用 DSH_SOURCE_ROOT 并重跑 gen-paths。
+    "typeRoots": ["../deepseek-harness/node_modules/@types"],
+
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

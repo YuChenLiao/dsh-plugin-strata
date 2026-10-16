@@ -1,0 +1,5 @@
+# 本工程刻意不安装依赖：类型、运行时契约、测试加载器、打包器全部借用本机 DSH
+# 源码树（tools/lib/harness.mjs 是唯一定位点）。这里只放运行期残留。
+*.log
+*.tsbuildinfo
+.DS_Store

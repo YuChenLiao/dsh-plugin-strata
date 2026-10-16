@@ -1,0 +1,59 @@
+# ============================================================================
+# dsh-plugin-strata —— DSH bundle patch（挂载声明）
+# ============================================================================
+# dsh 启动时按 bundle 层栈叠加各插件的 patch，本文件把插件的装载行插进 profile
+# 的配置树，并把默认 config 一并写进去。
+#
+# 安装：
+#   # 发布态
+#   dsh plugin --profile <profile> add github:YuChenLiao/dsh-plugin-strata
+#   # 本地开发态（指向本仓库目录）
+#   dsh plugin --profile <profile> add link:<本仓库绝对路径>
+#
+# 装完在 dsh 的「设置 → 插件」里启用（运行中的 dsh 也能直接启用，不必重启）。
+#
+# 前提：本机装了 Strata（位置由插件自动检测，不用配）。加载一份 35B 权重实测要 70–79 秒、
+# 常驻约 20 GB 内存，这个量级随模型而定。插件的默认姿态是**懒启动**：不在 dsh 装载时拉起，
+# 只在真正要用时启动，空闲 5 分钟后自动停止，而且只停止自己拉起的进程。主对话手里有三个
+# 工具来主动决定时机：
+#   strata_serve  —— 现在就用本地模型：唤起并等到就绪
+#   strata_status —— 它在不在、是不是本插件管着、还有多久回收
+#   strata_stop   —— 立刻释放那 20 GB
+# ============================================================================
+
+- insert:
+    - id: llm-strata
+      name: dsh-plugin-strata
+      # 全部字段都可省略；下面写的是本机实测出来的默认值，等价于不写。
+      config:
+        # OpenAI 兼容基址。
+        baseURL: http://127.0.0.1:8080/v1
+        # 模型不在这里写：dsh 的模型列表来自服务的 GET /v1/models，用户选什么就发什么。
+        # 只有要强制覆盖选择器的选择时才写 model:
+        # model: qwen3.6-35b-a3b-ud-q4_k_xl
+        # 思考档位 none/low/medium/high。默认 none：实测 1.2 秒返回完整答案，
+        # 而 low 或省略会把 max_tokens 全烧在思考通道上（content 为 null）。
+        reasoningEffort: none
+        # 上报给 dsh 的上下文容量，与服务 `--max-context` 对齐。
+        contextWindow: 65536
+        # 输出上限；请求自带 maxTokens 时以请求为准。
+        maxTokens: 8192
+        # 本地 35B MoE 出字速度 40–70 tok/s，长回答按分钟给。
+        requestTimeoutMs: 600000
+        # 端点也可以不写：不写就跟着自动检测到的服务端口走。
+        #
+        # ---- 服务托管 ----
+        # 安装位置不用配：插件会依次找 STRATA_HOME、用户主目录、%LOCALAPPDATA% 与各盘
+        # 根下的 Strata 目录，判定条件是"有 serve/server.py，且装好了引擎或虚拟环境"，
+        # 并从那里的 strata-*.json 读出引擎配置、端口与模型名。
+        # 全都找不到时，日志与工具报错会给出上游地址：
+        #   https://github.com/Niko1221/Strata
+        # 只有特殊情况（自定义启动方式）才需要直接给完整命令：
+        # serveCommand: ["C:\\path\\to\\python.exe", "C:\\path\\to\\serve\\server.py", "--engine", "strata"]
+        #
+        # 请求到来而服务没跑时是否自动拉起。关掉它就完全由主对话通过 strata_serve 决定时机。
+        autoStart: true
+        # 空闲多久后停止本插件拉起的服务（毫秒）；0 表示不自动停止。
+        idleShutdownMs: 300000
+        # 等待模型加载完成的上限；实测 70–79 秒，留足余量。
+        readyTimeoutMs: 180000

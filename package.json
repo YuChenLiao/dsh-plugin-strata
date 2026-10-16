@@ -1,0 +1,43 @@
+{
+  "name": "dsh-plugin-strata",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DSH 插件：把本机 Strata（HIP/AMD）推理服务接成 dsh 的本地模型 provider。模型列表由后端提供，支持按需拉起服务与空闲自动回收，并向主对话暴露 strata_serve / strata_status / strata_stop 三个工具",
+  "type": "module",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YuChenLiao/dsh-plugin-strata.git"
+  },
+  "homepage": "https://github.com/YuChenLiao/dsh-plugin-strata#readme",
+  "bugs": {
+    "url": "https://github.com/YuChenLiao/dsh-plugin-strata/issues"
+  },
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "lib",
+    "src",
+    "tools",
+    "tests",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "local-model",
+    "strata"
+  ],
+  "license": "MIT"
+}
